@@ -6,6 +6,12 @@
 
 #define TAILLE 10
 
+struct Commande {
+    bool quitter;
+    int colonne;
+    int ligne;
+};
+
 int tailles_bateaux[] = {5, 4, 3, 2};
 int nb_bateaux = sizeof(tailles_bateaux) / sizeof(tailles_bateaux[0]);
 
@@ -78,6 +84,51 @@ void tirer(char (plateau)[TAILLE][TAILLE], char (plateau_ennemi)[TAILLE][TAILLE]
         }
 }
 
+struct Commande saisir_commande(char plateau[TAILLE][TAILLE]) {
+
+    char ligne_tir;
+    int ligne = 0;
+    int col_tir = 0;
+    _Bool deja_testé = 0;
+    int quitter = 0;
+    _Bool dans_tableau = 0;
+
+    while (true) {
+        printf("Entrez une case pour tirer (ex: B4 ou B puis 4) ou 'Q' pour quitter : ");
+        scanf(" %c", &ligne_tir);
+        if (ligne_tir == 'Q' || ligne_tir == 'q'){
+            quitter = 1;
+            break;
+        }
+        ligne_tir = toupper(ligne_tir);
+        ligne = ligne_tir - 'A';
+
+        scanf("%d", &col_tir);
+        printf("Ligne tir : %d \n", ligne);
+        dans_tableau = ligne >= 0 && ligne < TAILLE && col_tir >= 0 && col_tir < TAILLE;
+        printf("Dans tableau : %d \n", dans_tableau);
+        if (dans_tableau) {
+            deja_testé = plateau[(ligne)][col_tir] == 'X' || plateau[(ligne)][col_tir] == 'O';
+            printf("Deja testé : %d \n", deja_testé);
+            if (deja_testé) {
+                printf("Vous avez déjà tiré ici. Choisissez une autre case.\n");
+            }
+            else {
+                break;
+            }
+        } else {
+            printf("Coordonnées invalides. Essayez encore.\n");
+        }
+    }
+
+    if (quitter) {
+        struct Commande commande = { .quitter = 1, .colonne = 0, .ligne = 0 };
+        return commande;
+    }
+    struct Commande commande = { .quitter = 0, .colonne = col_tir, .ligne = ligne };
+    return commande;
+}
+
 int main(void) {
     char plateau[TAILLE][TAILLE];
     char plateau_ennemi[TAILLE][TAILLE];
@@ -98,46 +149,13 @@ int main(void) {
         afficher_plateau(plateau);
         afficher_plateau(plateau_ennemi);
 
-        char ligne_tir;
-        int ligne, col_tir;
-        _Bool deja_testé = 0;
-        int quitter = 0;
-        _Bool dans_tableau = 0;
-
-        while (true) {
-            printf("Entrez une case pour tirer (ex: B4 ou B puis 4) ou 'Q' pour quitter : ");
-            scanf(" %c", &ligne_tir);
-            if (ligne_tir == 'Q' || ligne_tir == 'q'){
-                quitter = 1;
-                break;
-            }
-            ligne_tir = toupper(ligne_tir);
-            ligne = ligne_tir - 'A';
-
-            scanf("%d", &col_tir);
-            printf("Ligne tir : %d \n", ligne);
-            dans_tableau = ligne >= 0 && ligne < TAILLE && col_tir >= 0 && col_tir < TAILLE;
-            printf("Dans tableau : %d \n", dans_tableau);
-            if (dans_tableau) {
-                deja_testé = plateau[ligne][col_tir] == 'X' || plateau[ligne][col_tir] == 'O';
-                printf("Deja testé : %d \n", deja_testé);
-                if (deja_testé) {
-                    printf("Vous avez déjà tiré ici. Choisissez une autre case.\n");
-                }
-                else {
-                    break;
-                }
-            } else {
-                printf("Coordonnées invalides. Essayez encore.\n");
-            }
-        }
-
-        if (quitter) {
+        struct Commande commande = saisir_commande(plateau);
+        if (commande.quitter) {
             printf("\nVous avez quitté la partie.\n");
-            break;
+            exit(0);
         }
-
-        tirer(plateau, plateau_ennemi, ligne, col_tir);
+        
+        tirer(plateau, plateau_ennemi, commande.ligne, commande.colonne);
     }
 
     if (tous_bateaux_coules(plateau_ennemi)) {
