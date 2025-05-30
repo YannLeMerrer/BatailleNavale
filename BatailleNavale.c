@@ -15,7 +15,7 @@ struct Commande {
 int tailles_bateaux[] = {5, 4, 3, 2};
 int nb_bateaux = sizeof(tailles_bateaux) / sizeof(tailles_bateaux[0]);
 
-int peut_placer(char grille[TAILLE][TAILLE], int ligne, int col, int taille, int horizontal) {
+int peut_placer(char grille[][TAILLE], int ligne, int col, int taille, int horizontal) {
     for (int i = 0; i < taille; i++) {
         int l = ligne + (horizontal ? 0 : i);
         int c = col + (horizontal ? i : 0);
@@ -24,7 +24,7 @@ int peut_placer(char grille[TAILLE][TAILLE], int ligne, int col, int taille, int
     return 1;
 }
 
-void placer_bateau(char grille[TAILLE][TAILLE], int taille) {
+void placer_bateau(char grille[][TAILLE], int taille) {
     int placé = 0;
     while (!placé) {
         int horizontal = rand() % 2;
@@ -47,7 +47,7 @@ void placer_bateau(char grille[TAILLE][TAILLE], int taille) {
     }
 }
 
-void afficher_plateau(char grille[TAILLE][TAILLE]) {
+void afficher_plateau(char grille[][TAILLE]) {
     printf("  ");
     for (int j = 0; j < TAILLE; j++) {
         printf("%d ", j);
@@ -63,7 +63,7 @@ void afficher_plateau(char grille[TAILLE][TAILLE]) {
     }
 }
 
-int tous_bateaux_coules(char grille[TAILLE][TAILLE]) {
+int tous_bateaux_coules(char grille[][TAILLE]) {
     for (int i = 0; i < TAILLE; i++) {
         for (int j = 0; j < TAILLE; j++) {
             if (grille[i][j] == 'X') return 0;
@@ -72,7 +72,7 @@ int tous_bateaux_coules(char grille[TAILLE][TAILLE]) {
     return 1;
 }
 
-void tirer(char (plateau)[TAILLE][TAILLE], char (plateau_ennemi)[TAILLE][TAILLE], int ligne, int col_tir){
+void tirer(char (plateau)[][TAILLE], char (plateau_ennemi)[][TAILLE], int ligne, int col_tir){
     if (plateau_ennemi[ligne][col_tir] == 'X') {
         printf("Touché !\n");
         plateau[ligne][col_tir] = 'X';
@@ -84,7 +84,7 @@ void tirer(char (plateau)[TAILLE][TAILLE], char (plateau_ennemi)[TAILLE][TAILLE]
         }
 }
 
-struct Commande saisir_commande(char plateau[TAILLE][TAILLE]) {
+struct Commande saisir_commande(char plateau[][TAILLE]) {
 
     char ligne_tir;
     int ligne = 0;
@@ -126,11 +126,7 @@ struct Commande saisir_commande(char plateau[TAILLE][TAILLE]) {
     return commande;
 }
 
-int main(void) {
-    char plateau[TAILLE][TAILLE];
-    char plateau_ennemi[TAILLE][TAILLE];
-    srand(time(NULL));
-
+void initialiser_plateau(char plateau[][TAILLE], char plateau_ennemi[][TAILLE]) {
     for (int i = 0; i < TAILLE; i++) {
         for (int j = 0; j < TAILLE; j++) {
             plateau[i][j] = '~';
@@ -141,6 +137,14 @@ int main(void) {
     for (int i = 0; i < nb_bateaux; i++) {
         placer_bateau(plateau_ennemi, tailles_bateaux[i]);
     }
+}
+
+int main(void) {
+    char plateau[TAILLE][TAILLE];
+    char plateau_ennemi[TAILLE][TAILLE];
+    srand(time(NULL));
+
+    initialiser_plateau(plateau, plateau_ennemi);
 
     while (!tous_bateaux_coules(plateau_ennemi)) {
         afficher_plateau(plateau);
