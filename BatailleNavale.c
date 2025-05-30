@@ -104,12 +104,9 @@ struct Commande saisir_commande(char plateau[TAILLE][TAILLE]) {
         ligne = ligne_tir - 'A';
 
         scanf("%d", &col_tir);
-        printf("Ligne tir : %d \n", ligne);
         dans_tableau = ligne >= 0 && ligne < TAILLE && col_tir >= 0 && col_tir < TAILLE;
-        printf("Dans tableau : %d \n", dans_tableau);
         if (dans_tableau) {
             deja_testé = plateau[(ligne)][col_tir] == 'X' || plateau[(ligne)][col_tir] == 'O';
-            printf("Deja testé : %d \n", deja_testé);
             if (deja_testé) {
                 printf("Vous avez déjà tiré ici. Choisissez une autre case.\n");
             }
@@ -147,14 +144,13 @@ int main(void) {
 
     while (!tous_bateaux_coules(plateau_ennemi)) {
         afficher_plateau(plateau);
-        afficher_plateau(plateau_ennemi);
 
         struct Commande commande = saisir_commande(plateau);
         if (commande.quitter) {
             printf("\nVous avez quitté la partie.\n");
             exit(0);
         }
-        
+
         tirer(plateau, plateau_ennemi, commande.ligne, commande.colonne);
     }
 
