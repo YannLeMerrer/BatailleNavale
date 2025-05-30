@@ -1,3 +1,5 @@
+#include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -64,7 +66,19 @@ int tous_bateaux_coules(char grille[TAILLE][TAILLE]) {
     return 1;
 }
 
-int main() {
+void tirer(char (plateau)[TAILLE][TAILLE], char (plateau_ennemi)[TAILLE][TAILLE], int ligne, int col_tir){
+    if (plateau_ennemi[ligne][col_tir] == 'X') {
+        printf("Touché !\n");
+        plateau[ligne][col_tir] = 'X';
+        plateau_ennemi[ligne][col_tir] = '*';
+    }
+    else {
+        printf("Raté.\n");
+        plateau[ligne][col_tir] = 'O';
+        }
+}
+
+int main(void) {
     char plateau[TAILLE][TAILLE];
     char plateau_ennemi[TAILLE][TAILLE];
     srand(time(NULL));
@@ -82,28 +96,36 @@ int main() {
 
     while (!tous_bateaux_coules(plateau_ennemi)) {
         afficher_plateau(plateau);
+        afficher_plateau(plateau_ennemi);
 
         char ligne_tir;
         int ligne, col_tir;
-        int valide = 0;
+        _Bool deja_testé = 0;
         int quitter = 0;
+        _Bool dans_tableau = 0;
 
-        while (!valide && !quitter) {
+        while (true) {
             printf("Entrez une case pour tirer (ex: B4 ou B puis 4) ou 'Q' pour quitter : ");
             scanf(" %c", &ligne_tir);
             if (ligne_tir == 'Q' || ligne_tir == 'q'){
                 quitter = 1;
                 break;
             }
-
-            scanf("%d", &col_tir);
+            ligne_tir = toupper(ligne_tir);
             ligne = ligne_tir - 'A';
 
-            if (ligne >= 0 && ligne < TAILLE && col_tir >= 0 && col_tir < TAILLE) {
-                if (plateau[ligne][col_tir] == 'X' || plateau[ligne][col_tir] == 'O') {
+            scanf("%d", &col_tir);
+            printf("Ligne tir : %d \n", ligne);
+            dans_tableau = ligne >= 0 && ligne < TAILLE && col_tir >= 0 && col_tir < TAILLE;
+            printf("Dans tableau : %d \n", dans_tableau);
+            if (dans_tableau) {
+                deja_testé = plateau[ligne][col_tir] == 'X' || plateau[ligne][col_tir] == 'O';
+                printf("Deja testé : %d \n", deja_testé);
+                if (deja_testé) {
                     printf("Vous avez déjà tiré ici. Choisissez une autre case.\n");
-                } else {
-                    valide = 1;
+                }
+                else {
+                    break;
                 }
             } else {
                 printf("Coordonnées invalides. Essayez encore.\n");
@@ -115,14 +137,7 @@ int main() {
             break;
         }
 
-        if (plateau_ennemi[ligne][col_tir] == 'X') {
-            printf("Touché !\n");
-            plateau[ligne][col_tir] = 'X';
-            plateau_ennemi[ligne][col_tir] = '*';
-        } else {
-            printf("Raté.\n");
-            plateau[ligne][col_tir] = 'O';
-        }
+        tirer(plateau, plateau_ennemi, ligne, col_tir);
     }
 
     if (tous_bateaux_coules(plateau_ennemi)) {
